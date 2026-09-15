@@ -1,9 +1,74 @@
-# Example Mod
+# Hitbox Scaler — мод для Minecraft 1.21.11 (Fabric)
 
-## Setup
+Меняет размер хитбокса игрока. Открывается по клавише **H** (можно переназначить
+в настройках управления Minecraft), в меню — кнопки-пресеты 0.9x / 1.0x / 1.1x / 1.2x
+и ползунок для точного значения от 0.5x до 2.0x.
 
-For setup instructions, please see the [Fabric Documentation page](https://docs.fabricmc.net/develop/getting-started/creating-a-project#setting-up) related to the IDE that you are using.
+## Важно про хитбоксы и мультиплеер
 
-## License
+- Если мод стоит **только у тебя на клиенте**, а сервер обычный (ванильный/без мода) —
+  ты увидишь изменённый хитбокс только у себя визуально, но реальные попадания
+  и коллизии сервер всё равно считает по ванильному размеру. На чужом сервере это
+  не даст честного преимущества и может быть расценено как читерство — используй
+  на свой страх и риск и только там, где это разрешено.
+- Если мод стоит **и на клиенте, и на сервере** (или это одиночная игра/локальная
+  сеть — LAN), то хитбокс реально меняется и для попаданий, и для физики/коллизий.
+- В синглплеере всё работает "из коробки", т.к. встроенный сервер и клиент
+  находятся в одном процессе.
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+## Почему я не даю готовый .jar
+
+Сборка Fabric-мода требует Gradle-проект с точными версиями Minecraft/Yarn/Loom,
+которые Fabric периодически обновляет. Чтобы не подсунуть тебе рабочий на вид,
+но битый build.gradle, сделай так:
+
+### Шаг 1. Сгенерируй базовый проект
+Открой https://fabricmc.net/develop/template/ , выбери:
+- Minecraft version: **1.21.11**
+- Mod loader: **Fabric**
+- Оставь Mixins и Fabric API включёнными
+
+Скачай сгенерированный zip и распакуй — это будет твой рабочий проект
+(со своим правильным `build.gradle` и `gradle.properties` под 1.21.11).
+
+### Шаг 2. Скопируй файлы из этого архива в проект
+Скопируй содержимое папки `src/main/java/com/hitboxscaler/...` и
+`src/main/resources/...` из этого архива в такие же пути в сгенерированном
+проекте (замени тестовый `fabric.mod.json`, `*.mixins.json` и example-класс
+на файлы отсюда — либо слей вручную, если хочешь оставить своё имя мода).
+
+### Шаг 3. Проверь зависимость Fabric API
+В `build.gradle` сгенерированного проекта должна быть строка вида:
+```
+modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+```
+Она нужна для networking API (`ClientPlayNetworking`, `ServerPlayNetworking`,
+`PayloadTypeRegistry`) — в шаблоне Fabric API обычно уже подключён.
+
+### Шаг 4. Собери
+В терминале в папке проекта:
+```
+./gradlew build
+```
+Готовый .jar появится в `build/libs/`.
+
+### Шаг 5. Установи
+1. Установи Fabric Loader 1.21.11 через официальный установщик fabricmc.net.
+2. Скачай Fabric API под 1.21.11 (с Modrinth или CurseForge) и положи в `mods`.
+3. Положи туда же собранный `hitboxscaler-<версия>.jar`.
+4. Тот же набор (Fabric Loader + Fabric API + hitboxscaler.jar) нужен на сервере,
+   если хочешь, чтобы масштаб реально влиял на попадания в мультиплеере.
+
+## Как менять пресеты
+
+Пресеты заданы в `HitboxScaleScreen.java`:
+```java
+private static final float[] PRESETS = {0.9f, 1.0f, 1.1f, 1.2f};
+```
+Добавь свои значения в этот массив — кнопки создадутся автоматически.
+
+Диапазон ползунка (по умолчанию 0.5x–2.0x) задаётся в `HitboxScaleManager.java`:
+```java
+public static final float MIN_SCALE = 0.5f;
+public static final float MAX_SCALE = 2.0f;
+```

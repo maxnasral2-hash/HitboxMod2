@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.hitboxscaler.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "EntityDimensionsMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
